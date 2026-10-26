@@ -1,0 +1,236 @@
+/* Assets Doctor: tudo escopado a #ald-app, #ald-replace ou #ald-picker-root (LEARNINGS #003).
+   Paleta escura e quente (cinza-carvao + terracota), arredondada e sem gradientes pesados.
+   Contraste WCAG AA: botao primario #b5532f com texto branco, texto fraco #a09e94. */
+
+#ald-app, #ald-replace {
+  --ald-bg: #262624;
+  --ald-deep: #1f1e1d;
+  --ald-surface: #30302e;
+  --ald-surface-2: #3a3937;
+  --ald-border: #44423e;
+  --ald-text: #faf9f5;
+  --ald-muted: #b9b7ab;
+  --ald-faint: #a09e94;
+  --ald-accent: #d97757;
+  --ald-btn: #b5532f;
+  --ald-btn-hover: #a24a29;
+  --ald-accent-soft: rgba(217, 119, 87, 0.16);
+  --ald-accent-text: #f3b9a4;
+  --ald-ok: #6fcf97;
+  --ald-warn: #e6b450;
+  --ald-bad: #f47f72;
+  --ald-radius: 10px;
+
+  background: var(--ald-bg) !important;
+  border: 1px solid var(--ald-border) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.55) !important;
+  overflow: hidden;
+}
+
+#ald-app [hidden], #ald-replace [hidden] { display: none !important; }
+
+#ald-app .window-header, #ald-replace .window-header {
+  background: var(--ald-deep) !important;
+  border-bottom: 1px solid var(--ald-border) !important;
+  color: var(--ald-text) !important;
+}
+#ald-app .window-header .window-title, #ald-replace .window-header .window-title { color: var(--ald-text); font-weight: 600; }
+
+#ald-app .window-content, #ald-replace .window-content {
+  padding: 0; overflow: hidden; display: flex; flex-direction: column;
+  background: var(--ald-bg); color: var(--ald-text);
+}
+
+#ald-app #ald-root, #ald-replace #ald-rp-root {
+  flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; overflow: hidden;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; font-size: 13px;
+  color: var(--ald-text);
+}
+#ald-app #ald-root *, #ald-replace #ald-rp-root * { box-sizing: border-box; }
+
+/* ---- Botoes (compartilhados) ---- */
+#ald-app .ald-btn, #ald-app .ald-btn-primary, #ald-replace .ald-btn, #ald-replace .ald-btn-primary {
+  display: inline-flex; align-items: center; gap: 7px; width: auto; height: auto; line-height: 1.2;
+  padding: 7px 13px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s; font-family: inherit; white-space: nowrap;
+}
+#ald-app .ald-btn-primary, #ald-replace .ald-btn-primary { border: 1px solid transparent; background: var(--ald-btn); color: #fff; text-transform: none; }
+#ald-app .ald-btn-primary:hover:not(:disabled), #ald-replace .ald-btn-primary:hover:not(:disabled) { background: var(--ald-btn-hover); }
+#ald-app .ald-btn, #ald-replace .ald-btn { border: 1px solid var(--ald-border); background: var(--ald-surface); color: var(--ald-text); }
+#ald-app .ald-btn:hover:not(:disabled), #ald-replace .ald-btn:hover:not(:disabled) { background: var(--ald-surface-2); border-color: #5a5853; }
+#ald-app .ald-btn:disabled, #ald-app .ald-btn-primary:disabled, #ald-replace .ald-btn:disabled, #ald-replace .ald-btn-primary:disabled {
+  background: var(--ald-surface); color: #8f8d83; border-color: var(--ald-border); cursor: not-allowed; opacity: 0.7;
+}
+
+/* ---- Barra do topo (compacta) ---- */
+#ald-app .ald-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; padding: 10px 18px 8px; flex-shrink: 0; }
+#ald-app .ald-titleline { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; min-width: 0; }
+#ald-app .ald-titleline h2 { margin: 0; font-family: inherit; font-size: 17px; font-weight: 650; letter-spacing: -0.2px; color: var(--ald-text); border: none; text-transform: none; }
+#ald-app .ald-ver { padding: 1px 7px; border-radius: 99px; background: var(--ald-surface); color: var(--ald-faint); font-size: 11px; }
+#ald-app .ald-sub { font-size: 12px; color: var(--ald-muted); }
+#ald-app .ald-actions { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* ---- O que verificar (recolhido) ---- */
+#ald-app .ald-scope { margin: 0 18px 8px; border: 1px solid var(--ald-border); border-radius: var(--ald-radius); background: var(--ald-surface); flex-shrink: 0; }
+#ald-app .ald-scope > summary { list-style: none; cursor: pointer; padding: 7px 12px; color: var(--ald-muted); font-size: 12px; display: flex; align-items: center; gap: 7px; }
+#ald-app .ald-scope > summary::-webkit-details-marker { display: none; }
+#ald-app .ald-scope > summary:hover { color: var(--ald-text); }
+#ald-app .ald-scope > summary b { color: var(--ald-text); font-weight: 600; }
+#ald-app .ald-scope-body { display: flex; flex-wrap: wrap; gap: 8px 22px; align-items: flex-start; padding: 6px 14px 12px; border-top: 1px solid var(--ald-border); }
+#ald-app .ald-opt { display: flex; align-items: flex-start; gap: 9px; margin: 0; cursor: pointer; max-width: 330px; }
+#ald-app .ald-opt input { margin: 3px 0 0; accent-color: var(--ald-accent); flex-shrink: 0; }
+#ald-app .ald-opt span { display: flex; flex-direction: column; gap: 2px; }
+#ald-app .ald-opt b { font-size: 13px; font-weight: 600; color: var(--ald-text); }
+#ald-app .ald-opt small { font-size: 11px; color: var(--ald-faint); line-height: 1.3; }
+#ald-app .ald-opt:has(input:disabled) { opacity: 0.55; cursor: not-allowed; }
+#ald-app .ald-opt-row { display: flex; align-items: flex-start; gap: 10px; }
+#ald-app .ald-scope-warn { flex: 1 1 100%; color: var(--ald-warn); font-size: 12px; }
+
+/* ---- Progresso ---- */
+#ald-app .ald-progress { padding: 2px 18px 10px; flex-shrink: 0; }
+#ald-app .ald-bar { height: 8px; border-radius: 99px; background: var(--ald-deep); overflow: hidden; }
+#ald-app .ald-bar i { display: block; height: 100%; width: 0; border-radius: 99px; background: var(--ald-accent); transition: width 0.15s; }
+#ald-app .ald-ptext { margin-top: 6px; color: var(--ald-muted); font-size: 12px; }
+
+/* ---- Abas de situacao + busca + filtros ---- */
+#ald-app .ald-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 0 18px 8px; flex-shrink: 0; }
+#ald-app .ald-tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 3px; border-radius: 10px; background: var(--ald-deep); }
+#ald-app .ald-tab {
+  padding: 5px 12px; border: none; border-radius: 8px; background: transparent; color: var(--ald-muted);
+  font-size: 12.5px; font-weight: 600; cursor: pointer; width: auto; height: auto; line-height: 1.3; font-family: inherit;
+}
+#ald-app .ald-tab:hover { color: var(--ald-text); background: var(--ald-surface); }
+#ald-app .ald-tab em { font-style: normal; opacity: 0.7; margin-left: 4px; font-weight: 500; }
+#ald-app .ald-tab.on { background: var(--ald-surface-2); color: var(--ald-text); box-shadow: inset 0 0 0 1px var(--ald-border); }
+#ald-app .ald-tab-broken.on em, #ald-app .ald-tab-problems.on em { color: var(--ald-bad); opacity: 1; }
+#ald-app .ald-tab-warn.on em { color: var(--ald-warn); opacity: 1; }
+#ald-app .ald-tab-ok.on em { color: var(--ald-ok); opacity: 1; }
+#ald-app #ald-text {
+  flex: 1 1 220px; min-width: 160px; background: var(--ald-deep); color: var(--ald-text); border: 1px solid var(--ald-border);
+  border-radius: 8px; padding: 7px 10px; height: auto; font-family: inherit; font-size: 13px;
+}
+#ald-app #ald-text::placeholder, #ald-app .ald-fld input::placeholder { color: var(--ald-faint); }
+#ald-app #ald-text:focus, #ald-app .ald-fld input:focus { outline: none; border-color: var(--ald-accent); box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.25); }
+#ald-app #ald-fcount { font-style: normal; min-width: 18px; padding: 0 5px; border-radius: 99px; background: var(--ald-accent); color: #1f1e1d; font-size: 11px; font-weight: 700; text-align: center; }
+
+#ald-app .ald-filters { margin: 0 18px 8px; padding: 10px 14px 12px; border: 1px solid var(--ald-border); border-radius: var(--ald-radius); background: var(--ald-surface); flex-shrink: 0; max-height: 42vh; overflow-y: auto; }
+#ald-app .ald-chiprow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 6px; }
+#ald-app .ald-chiplabel { color: var(--ald-faint); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.6px; min-width: 88px; }
+#ald-app .ald-chip {
+  padding: 3px 11px; border-radius: 99px; border: 1px solid var(--ald-border); background: transparent;
+  color: var(--ald-muted); font-size: 12px; cursor: pointer; line-height: 1.4; width: auto; height: auto; font-family: inherit;
+}
+#ald-app .ald-chip:hover { background: var(--ald-surface-2); color: var(--ald-text); }
+#ald-app .ald-chip em { font-style: normal; opacity: 0.65; margin-left: 3px; }
+#ald-app .ald-chip.on { background: var(--ald-accent-soft); border-color: var(--ald-accent); color: var(--ald-accent-text); font-weight: 600; }
+#ald-app .ald-chip.zero:not(.on) { opacity: 0.45; }
+#ald-app .ald-filter-inputs { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 10px; margin-top: 8px; }
+#ald-app .ald-fld { display: flex; flex-direction: column; gap: 4px; min-width: 170px; margin: 0; }
+#ald-app .ald-fld.ald-grow { flex: 1 1 240px; }
+#ald-app .ald-fld > span { font-size: 12px; font-weight: 600; color: var(--ald-text); }
+#ald-app .ald-fld > small { font-size: 11px; color: var(--ald-faint); line-height: 1.3; }
+#ald-app .ald-fld input { background: var(--ald-deep); color: var(--ald-text); border: 1px solid var(--ald-border); border-radius: 8px; padding: 7px 10px; height: auto; width: 100%; font-family: inherit; font-size: 13px; }
+#ald-app .ald-reset { margin-top: 20px; }
+
+#ald-app .ald-info { padding: 0 18px 6px; font-size: 12px; color: var(--ald-muted); flex-shrink: 0; }
+
+/* ---- Lista ---- */
+#ald-app .ald-listwrap { flex: none; overflow: hidden; border-top: 1px solid var(--ald-border); background: var(--ald-deep); }
+#ald-app .ald-list { height: 100%; overflow-y: scroll; overflow-x: hidden; padding: 10px 18px; scrollbar-width: thin; scrollbar-color: #5a5853 transparent; }
+#ald-app .ald-empty { padding: 36px; text-align: center; color: var(--ald-muted); }
+
+#ald-app .ald-row { border: 1px solid var(--ald-border); border-left: 3px solid var(--ald-faint); border-radius: var(--ald-radius); background: var(--ald-surface); margin-bottom: 6px; overflow: hidden; }
+#ald-app .ald-s-broken { border-left-color: var(--ald-bad); }
+#ald-app .ald-s-warn { border-left-color: var(--ald-warn); }
+#ald-app .ald-s-ok { border-left-color: var(--ald-ok); }
+#ald-app .ald-row-main { display: flex; align-items: center; gap: 9px; padding: 7px 12px; cursor: pointer; }
+#ald-app .ald-row-main:hover { background: var(--ald-surface-2); }
+#ald-app .ald-chev { width: 10px; color: var(--ald-faint); font-size: 10px; }
+#ald-app .ald-badge { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 2px 8px; border-radius: 99px; background: var(--ald-deep); color: var(--ald-muted); flex-shrink: 0; }
+#ald-app .ald-s-broken .ald-badge { color: var(--ald-bad); background: rgba(244, 127, 114, 0.12); }
+#ald-app .ald-s-warn .ald-badge { color: var(--ald-warn); background: rgba(230, 180, 80, 0.12); }
+#ald-app .ald-s-ok .ald-badge { color: var(--ald-ok); background: rgba(111, 207, 151, 0.12); }
+#ald-app .ald-kind { color: var(--ald-faint); width: 16px; text-align: center; }
+#ald-app .ald-path { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 12.5px; color: var(--ald-text); }
+#ald-app .ald-tag { font-size: 10px; padding: 2px 7px; border-radius: 99px; background: var(--ald-accent-soft); color: var(--ald-accent-text); flex-shrink: 0; }
+#ald-app .ald-uses { color: var(--ald-faint); font-size: 11px; white-space: nowrap; }
+#ald-app .ald-replace {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; width: auto; height: auto; line-height: 1.2;
+  padding: 4px 10px; border-radius: 7px; border: 1px solid var(--ald-accent); background: var(--ald-accent-soft);
+  color: var(--ald-accent-text); font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+#ald-app .ald-replace:hover { background: rgba(217, 119, 87, 0.3); }
+#ald-app .ald-mini { background: transparent; border: none; color: var(--ald-faint); cursor: pointer; padding: 3px 6px; width: auto; height: auto; line-height: 1; border-radius: 6px; }
+#ald-app .ald-mini:hover { color: var(--ald-text); background: var(--ald-surface-2); }
+#ald-app .ald-detail { padding: 0 12px 8px 40px; color: var(--ald-muted); font-size: 12px; }
+#ald-app .ald-refs { list-style: none; margin: 0; padding: 6px 12px 10px 40px; border-top: 1px solid var(--ald-border); background: rgba(0, 0, 0, 0.12); }
+#ald-app .ald-refs li { display: flex; align-items: center; gap: 9px; padding: 3px 0; }
+#ald-app .ald-origin { font-size: 10px; font-weight: 600; text-transform: uppercase; padding: 2px 7px; border-radius: 99px; background: var(--ald-surface-2); color: var(--ald-muted); flex-shrink: 0; }
+#ald-app .ald-owner { font-size: 10px; padding: 2px 7px; border-radius: 99px; flex-shrink: 0; background: var(--ald-surface-2); color: var(--ald-muted); }
+#ald-app .ald-owner.inactive, #ald-app .ald-owner.unknown { background: rgba(230, 180, 80, 0.14); color: var(--ald-warn); }
+#ald-app .ald-loc { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#ald-app .ald-field { color: var(--ald-faint); font-size: 11px; background: transparent; border: none; padding: 0; }
+#ald-app .ald-more { color: var(--ald-faint); font-style: italic; }
+
+#ald-app .ald-footer { display: flex; align-items: center; gap: 12px; padding: 7px 18px; flex-shrink: 0; background: var(--ald-bg); border-top: 1px solid var(--ald-border); color: var(--ald-muted); font-size: 12px; }
+
+/* ---- Janela de troca ---- */
+#ald-replace .rp-body { overflow-y: auto; overflow-x: hidden; padding: 14px 18px; display: flex; flex-direction: column; gap: 12px; scrollbar-width: thin; scrollbar-color: #5a5853 transparent; }
+#ald-replace .rp-block { display: flex; flex-direction: column; gap: 4px; }
+#ald-replace .rp-label { font-size: 12px; font-weight: 600; }
+#ald-replace .rp-path, #ald-replace .rp-old, #ald-replace .rp-new { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 12.5px; word-break: break-all; }
+#ald-replace .rp-path { padding: 8px 10px; border-radius: 8px; background: var(--ald-deep); border: 1px solid var(--ald-border); }
+#ald-replace .rp-hint { font-size: 12px; color: var(--ald-muted); }
+#ald-replace .rp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 14px; }
+#ald-replace .rp-field { display: flex; flex-direction: column; gap: 4px; margin: 0; }
+#ald-replace .rp-field > span { font-size: 12px; font-weight: 600; }
+#ald-replace .rp-field > small { font-size: 11px; color: var(--ald-faint); line-height: 1.3; }
+#ald-replace .rp-inline { display: flex; gap: 8px; }
+#ald-replace .rp-inline input { flex: 1 1 auto; }
+#ald-replace .rp-field input, #ald-replace .rp-field select {
+  background: var(--ald-deep); color: var(--ald-text); border: 1px solid var(--ald-border); border-radius: 8px;
+  padding: 7px 10px; height: fit-content; min-height: fit-content; width: 100%; font-family: inherit; font-size: 13px;
+}
+#ald-replace .rp-field select option { background: var(--ald-deep); color: var(--ald-text); }
+#ald-replace .rp-field input::placeholder { color: var(--ald-faint); }
+#ald-replace .rp-field input:focus, #ald-replace .rp-field select:focus { outline: none; border-color: var(--ald-accent); box-shadow: 0 0 0 3px rgba(217, 119, 87, 0.25); }
+#ald-replace .rp-check { display: flex; align-items: flex-start; gap: 9px; margin: 0; cursor: pointer; }
+#ald-replace .rp-check input { margin: 3px 0 0; accent-color: var(--ald-accent); flex-shrink: 0; }
+#ald-replace .rp-check span { display: flex; flex-direction: column; gap: 2px; }
+#ald-replace .rp-check b { font-size: 13px; font-weight: 600; }
+#ald-replace .rp-check small { font-size: 11px; color: var(--ald-faint); line-height: 1.3; }
+#ald-replace .rp-note { min-height: 16px; font-size: 12px; color: var(--ald-muted); }
+#ald-replace .rp-preview { display: flex; flex-direction: column; gap: 6px; }
+#ald-replace .rp-empty, #ald-replace .rp-more { padding: 22px; text-align: center; color: var(--ald-muted); font-size: 12px; }
+#ald-replace .rp-row { padding: 8px 12px; border: 1px solid var(--ald-border); border-radius: var(--ald-radius); background: var(--ald-surface); display: flex; flex-direction: column; gap: 3px; }
+#ald-replace .rp-old { color: var(--ald-muted); text-decoration: line-through; text-decoration-color: rgba(244, 127, 114, 0.6); }
+#ald-replace .rp-arrow { color: var(--ald-faint); font-size: 10px; }
+#ald-replace .rp-new { color: var(--ald-text); }
+#ald-replace .rp-meta { display: flex; gap: 14px; font-size: 11px; color: var(--ald-faint); }
+#ald-replace .rp-st.ok { color: var(--ald-ok); }
+#ald-replace .rp-st.bad { color: var(--ald-bad); }
+#ald-replace .rp-progress { padding-top: 4px; }
+#ald-replace .rp-bar { height: 8px; border-radius: 99px; background: var(--ald-deep); overflow: hidden; }
+#ald-replace .rp-bar i { display: block; height: 100%; width: 0; border-radius: 99px; background: var(--ald-accent); transition: width 0.15s; }
+#ald-replace .rp-ptext { margin-top: 6px; color: var(--ald-muted); font-size: 12px; }
+#ald-replace .rp-done { padding: 14px; border: 1px solid var(--ald-ok); border-radius: var(--ald-radius); background: rgba(111, 207, 151, 0.08); display: flex; flex-direction: column; gap: 6px; }
+#ald-replace .rp-fail { color: var(--ald-bad); }
+#ald-replace .rp-fail ul { margin: 4px 0 0; padding-left: 18px; font-size: 11px; }
+#ald-replace .rp-footer { display: flex; align-items: center; gap: 10px; padding: 9px 18px; flex-shrink: 0; background: var(--ald-bg); border-top: 1px solid var(--ald-border); font-size: 12px; color: var(--ald-muted); }
+#ald-replace .rp-spacer { flex: 1 1 auto; }
+
+/* ---- Janela para escolher modulo ---- */
+#ald-picker-root { display: flex; flex-direction: column; gap: 10px; height: 100%; min-height: 0; font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+#ald-picker-root .ald-picker-help { margin: 0; font-size: 12px; opacity: 0.8; }
+#ald-picker-root #ald-picker-search { width: 100%; padding: 7px 10px; height: auto; border-radius: 8px; }
+#ald-picker-root .ald-picker-list { flex: 1 1 auto; min-height: 0; max-height: 380px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
+#ald-picker-root .ald-pick-item { display: flex; align-items: baseline; gap: 10px; width: 100%; height: auto; padding: 8px 12px; text-align: left; border-radius: 8px; cursor: pointer; line-height: 1.3; }
+#ald-picker-root .ald-pick-item[hidden] { display: none; }
+#ald-picker-root .ald-pick-item b { font-weight: 600; }
+#ald-picker-root .ald-pick-item span { font-family: ui-monospace, Consolas, monospace; font-size: 11px; opacity: 0.7; }
+#ald-picker-root .ald-pick-item em { margin-left: auto; font-style: normal; font-size: 11px; opacity: 0.7; white-space: nowrap; }
+#ald-picker-root .ald-pick-item.on { outline: 2px solid #d97757; background: rgba(217, 119, 87, 0.18); }
+
+/* ---- Viewer de instrucoes ---- */
+#asset-link-doctor-instructions .ald-instructions { padding: 16px; line-height: 1.6; }

@@ -1,0 +1,17 @@
+{
+  "id": "asset-link-doctor",
+  "title": "Assets Doctor",
+  "description": "Encontra links de assets quebrados no mundo e nos compendios (arquivos que sumiram, wildcards vazios, tipos errados). Verifica, troca caminhos (um ou em lote) e desfaz.",
+  "version": "1.0.0-beta",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "authors": [{ "name": "Jack_Sands" }],
+  "esmodules": ["scripts/main.mjs"],
+  "styles": ["styles/module.css"],
+  "languages": [
+    { "lang": "pt-BR", "name": "Português (Brasil)", "path": "lang/pt-BR.json" },
+    { "lang": "en", "name": "English", "path": "lang/en.json" }
+  ]
+}
