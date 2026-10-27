@@ -243,7 +243,7 @@
 #ald-app .ald-hide:hover { background: var(--ald-surface-2); color: var(--ald-text); border-color: #5a5853; }
 
 /* ---- Leitor de instrucoes ---- */
-#asset-doctor-instructions .ald-instructions { padding: 18px 22px; line-height: 1.6; font-size: 14px; }
+#asset-doctor-instructions .ald-instructions { box-sizing: border-box; padding: 18px 22px; line-height: 1.6; font-size: 14px; scrollbar-width: thin; }
 #asset-doctor-instructions .ald-instructions h1 { font-size: 22px; margin: 0 0 10px; border: none; }
 #asset-doctor-instructions .ald-instructions h2 { font-size: 17px; margin: 22px 0 8px; padding-bottom: 4px; border-bottom: 1px solid rgba(128, 128, 128, 0.35); }
 #asset-doctor-instructions .ald-instructions h3 { font-size: 14px; margin: 16px 0 6px; }

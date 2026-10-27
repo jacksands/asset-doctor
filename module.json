@@ -2,14 +2,18 @@
   "id": "asset-doctor",
   "title": "Assets Doctor",
   "description": "Finds broken asset links in your world and compendiums, then fixes them: replace one file everywhere or many at once, with preview, backup and undo.",
-  "version": "1.0.0-beta",
+  "version": "1.0.2-beta",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
   "authors": [
     {
       "name": "Jack_Sands",
       "url": "https://github.com/jacksands"
     }
   ],
-  "compatibility": {
+ "compatibility": {
     "minimum": "14",
     "verified": "14",
     "maximum": "14"

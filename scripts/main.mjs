@@ -70,6 +70,23 @@ class InstructionsViewer extends foundry.applications.api.ApplicationV2 {
 
   _replaceHTML(result, content) {
     content.replaceChildren(result);
+
+    // Barra de rolagem: so CSS nao funciona no .window-content. Altura em px + ResizeObserver (LEARNINGS #002).
+    content.style.setProperty("padding", "0", "important");
+    content.style.setProperty("overflow", "hidden", "important");
+    const fit = () => {
+      if (!result.isConnected) return;
+      result.style.setProperty("height", `${content.clientHeight}px`, "important");
+      result.style.setProperty("overflow-y", "auto", "important");
+    };
+    this._ro?.disconnect();
+    this._ro = new ResizeObserver(fit);
+    this._ro.observe(content);
+    requestAnimationFrame(fit);
+  }
+
+  _onClose() {
+    this._ro?.disconnect();
   }
 }
 
