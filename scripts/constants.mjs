@@ -1,5 +1,5 @@
 export const MODULE_ID = "asset-doctor";
-export const VERSION = "1.0.1-beta";
+export const VERSION = "1.0.0-beta";
 
 export const IMAGE_EXT = new Set(["png", "jpg", "jpeg", "webp", "gif", "svg", "avif", "bmp", "apng", "ico", "tif", "tiff"]);
 export const VIDEO_EXT = new Set(["mp4", "webm", "ogv", "m4v", "mov", "mkv"]);
