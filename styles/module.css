@@ -232,5 +232,23 @@
 #ald-picker-root .ald-pick-item em { margin-left: auto; font-style: normal; font-size: 11px; opacity: 0.7; white-space: nowrap; }
 #ald-picker-root .ald-pick-item.on { outline: 2px solid #d97757; background: rgba(217, 119, 87, 0.18); }
 
-/* ---- Viewer de instrucoes ---- */
-#asset-link-doctor-instructions .ald-instructions { padding: 16px; line-height: 1.6; }
+
+
+/* ---- Ocultar por enquanto ---- */
+#ald-app .ald-hide {
+  display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0; width: auto; height: auto; line-height: 1.2;
+  padding: 4px 9px; border-radius: 7px; border: 1px solid var(--ald-border); background: transparent;
+  color: var(--ald-muted); font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+#ald-app .ald-hide:hover { background: var(--ald-surface-2); color: var(--ald-text); border-color: #5a5853; }
+
+/* ---- Leitor de instrucoes ---- */
+#asset-doctor-instructions .ald-instructions { padding: 18px 22px; line-height: 1.6; font-size: 14px; }
+#asset-doctor-instructions .ald-instructions h1 { font-size: 22px; margin: 0 0 10px; border: none; }
+#asset-doctor-instructions .ald-instructions h2 { font-size: 17px; margin: 22px 0 8px; padding-bottom: 4px; border-bottom: 1px solid rgba(128, 128, 128, 0.35); }
+#asset-doctor-instructions .ald-instructions h3 { font-size: 14px; margin: 16px 0 6px; }
+#asset-doctor-instructions .ald-instructions p { margin: 0 0 10px; }
+#asset-doctor-instructions .ald-instructions ul, #asset-doctor-instructions .ald-instructions ol { margin: 0 0 12px; padding-left: 22px; }
+#asset-doctor-instructions .ald-instructions li { margin: 3px 0; }
+#asset-doctor-instructions .ald-instructions code { padding: 1px 5px; border-radius: 4px; background: rgba(128, 128, 128, 0.2); font-size: 12.5px; }
+#asset-doctor-instructions .ald-instructions a { text-decoration: underline; }

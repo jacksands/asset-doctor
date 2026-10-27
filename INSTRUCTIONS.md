@@ -1,57 +1,117 @@
-# Assets Doctor: Instruções
+# Assets Doctor
 
-## Como usar
-1. Abra a barra lateral, aba **Configurações** (engrenagem), e clique no botão **Assets Doctor** no fim da lista de botões (somente GM). Também dá para abrir por **Configurações do jogo > Módulos > Assets Doctor > Abrir verificador**.
-2. Clique em **Verificar**. A barra mostra a etapa (documentos, compêndios, pastas, wildcards). Depois da verificação, a parte "O que verificar" recolhe sozinha para sobrar espaço para a lista.
-3. Use as **abas** (Problemas, Quebrados, Atenção, OK, Ignorados): cada aba mostra só aquela situação.
-4. A caixa de busca filtra por nome do arquivo, do documento ou da cena. O botão **Filtros** abre os filtros avançados: tipo de mídia, origem (cena, token, pin de journal, playlist...), pasta ou módulo (ex.: `modules/alien-stuff`) e extensão (ex.: `png, webp`). Clique em um chip para mostrar só aquele; clique de novo para tirar. Sem nenhum chip marcado, nada é filtrado.
-5. Clique em uma linha para ver onde o arquivo é usado. O botão de seta abre o documento.
+Assets Doctor finds broken asset links in your Foundry world (images, tokens, tiles, sounds, journal pictures and more) and helps you fix them in a few clicks. You can replace one file everywhere at once, or fix hundreds of paths in bulk, with a preview, a backup and an undo button.
 
-Atalho para macro: `game.modules.get("asset-link-doctor").api.open()`
+Made for Foundry VTT v14. GM only.
 
-## Trocar caminhos
-- **Trocar (um arquivo):** o botão **Trocar** de cada linha troca aquele caminho em **todos os usos de uma vez**. Digite ou cole o caminho novo (com espaços ou com `%20`) ou clique em **Procurar** para escolher o arquivo; o navegador abre na pasta mais próxima que ainda existe.
-- **Trocar em lote:** o botão do topo age sobre **todos os itens que estão na lista** (as abas e filtros valem). Três jeitos: o caminho **começa com**, o caminho **contém**, ou **só a extensão** (ex.: `mp3` para `ogg`). Nos dois primeiros dá para mudar também a extensão.
-- A janela mostra uma **prévia** (antigo e novo) e se o arquivo novo existe. Por padrão só troca onde o novo existe.
-- Antes de aplicar, pede confirmação e **baixa um arquivo de segurança** (.json) com os valores antigos.
-- **Desfazer última troca** (botão no topo) restaura os valores antigos. Fica disponível enquanto você não recarregar o Foundry; depois disso, o arquivo de segurança guarda os valores.
-- Depois de trocar, a lista é verificada de novo sozinha.
-- A troca grava nos documentos do mundo (e em compêndios destravados). Compêndio travado dá erro e aparece na lista de falhas.
-- Não são trocados: links externos (http), arquivos do núcleo, nomes de arquivo soltos sem pasta e a lista de pastas do Token Variant Art (é uma configuração do módulo).
+## Open it
 
-## O que verificar (opções da janela)
-Cada opção soma uma fonte à verificação. Marque ao menos uma.
-- **Apenas assets e arquivos do mundo** (padrão): cenas (inclusive os níveis do V14), atores, itens, playlists, journals (inclusive imagens dentro do texto), tabelas, macros, cartas e usuários deste mundo, mais a lista de pastas de busca do Token Variant Art.
-- **Verificar compêndios:** também abre os compêndios deste mundo. A opção **Incluir compêndios de módulos e do sistema** é bem mais lenta.
-- **Verificar assets de um módulo:** abre um navegador para escolher um módulo ativo que tenha compêndios e verifica só os compêndios dele. Serve para quem está criando um módulo.
-- Wildcards (`pasta/*`): o módulo lista a pasta e confere se existem arquivos do tipo certo (imagem para token, áudio para playlist).
+- Open the sidebar, go to the **Settings** tab (the gear) and click the **Assets Doctor** button at the end of the button list.
+- Or go to **Game Settings > Configure Settings > Module Settings > Assets Doctor** and click **Open checker**.
+- Or run this in a macro: `game.modules.get("asset-doctor").api.open()`
 
-A janela mostra a versão do módulo ao lado do título e, na linha abaixo das abas, o que foi verificado, o total de caminhos e o tempo.
+## Quick start
 
-## Por que aparece um link "quebrado" de um módulo desligado?
-O Foundry guarda dentro de cada token, ator ou cena os dados que os módulos gravam (campo `flags`). Se você desligar o módulo, os dados ficam lá. O verificador lê tudo isso. Cada uso mostra o módulo dono do dado e se ele está ativo, desligado ou não instalado (mesmo critério do módulo Snoot: ativo, desligado ou órfão). Dado cujo único dono é módulo desligado ou não instalado vai para **Ignorados**.
+1. Click **Scan**. A progress bar shows what it is doing.
+2. Look at the **Problems** tab. Each row is one file path that has trouble, with how many times it is used.
+3. Click **Replace** on a row, type or browse to the new location, and apply.
+4. The list refreshes by itself. Anything you fixed disappears from Problems.
 
-Alguns módulos guardam cópias de dados de outros. Exemplo: as predefinições do Mass Edit guardam, dentro de `flags.multi-token-edit`, uma cópia dos dados do token, incluindo `flags.barbrawl`. Nesses casos o dono é o módulo mais interno que o Foundry conhece (aqui, o Bar Brawl), e não o que guarda a cópia.
+## What to check
 
-## Situações
-- **Quebrados:** arquivo, pasta ou wildcard sem resultado.
-- **Atenção:** maiúsculas/minúsculas diferentes, tipo que não combina com o campo, wildcard com arquivos misturados.
-- **Ignorados:** links externos (http) e arquivos do núcleo do Foundry (`icons/`, `ui/`...).
+Click the **What to check** panel to choose where to look. It closes by itself after a scan so the list has more room.
 
-## O que ele ignora de propósito (para não dar falso alarme)
-- Dados gravados por módulos que estão **desligados** (ex.: um token com dados do Bar Brawl desativado). Aparecem em **Ignorados**, com o nome do módulo.
-- Valores de exemplo que alguns módulos gravam por padrão, como `path/image.png`.
-- Nomes de arquivo soltos, sem pasta, em campos de módulos (costumam ser rótulos, não links).
-- Nomes de arquivo com `#` ou acentos são comparados corretamente.
-- Se aparecer um aviso dizendo que o navegador usa arquivos antigos, recarregue com Ctrl+F5.
+- **World assets and files only** (default): scenes (including V14 Levels), actors, items, playlists, journals (including pictures inside the text), roll tables, macros, cards and users of this world.
+- **Verify compendiums**: also opens the compendiums of this world. This is slower.
+- **Include module and system compendiums**: much slower. Only use it when you need it.
+- **Verify module assets**: opens a module browser. Pick one active module that has compendiums and Assets Doctor checks only its compendiums. Handy while you are building a module.
 
-## Limites desta versão
-- Ainda não há arrastar e soltar um arquivo para copiá-lo para a pasta original, nem copiar ou mover arquivos em massa.
-- O Foundry não permite apagar nem mover arquivos; os arquivos antigos continuam onde estão.
-- A janela tem botão **Maximizar** para ler a lista com mais espaço.
-- Miniaturas de cena (`thumb`) são ignoradas, pois o Foundry as recria ao editar a cena.
-- Qualquer texto que termine em extensão de mídia conhecida é tratado como caminho. Pode haver um falso positivo raro em campos de módulos.
-- Fontes de arquivo diferentes de "data" (S3, Forge) não são verificadas.
+You can turn on more than one. Your choices are remembered.
 
-## Créditos
-Desenvolvido por Jack_Sands para Foundry VTT V14. Ideias estudadas: Asset Auditor, Scene Packer, Pack My World e Snoot.
+## Reading the list
+
+The tabs show one situation at a time:
+
+- **Problems**: Broken and Attention together. This is where you start.
+- **Broken**: the file or folder does not exist, or a wildcard (`folder/*`) matches nothing, or it only matches the wrong kind of file (for example a token pointing to a folder of sounds).
+- **Attention**: it works on your computer but is not clean. Examples: `Map.PNG` on disk but `map.png` in the data (breaks on Linux servers), a sound field pointing to an image, or a wildcard folder with mixed file types.
+- **OK**: the file exists.
+- **Ignored**: things Assets Doctor skips on purpose. External web links, Foundry core files, example values some modules save (like `path/image.png`), and data that belongs to modules that are turned off or not installed.
+- **Hidden**: items you hid yourself (see below).
+
+Click a row to see every place that uses the file. The arrow button opens that document. The copy button copies the path. A small tag such as `barbrawl · turned off` tells you which module saved that data.
+
+### Why do I see links from a module I turned off?
+
+Foundry keeps the data modules save inside your tokens, actors and scenes, even after you turn the module off. Assets Doctor reads all of it, then moves data that only belongs to turned-off or missing modules to **Ignored**. Some modules also keep copies of other modules' data (Mass Edit presets, for example). In that case the owner is the module the data is really for.
+
+### Search and filters
+
+- The search box filters by file, document or scene name.
+- **Filters** opens more: media type, where it is used (scene, token, tile, journal pin, playlist...), **Inside this folder or module** (for example `modules/alien-stuff`) and **Extension** (for example `png, webp`).
+- Click a chip to show only that kind. Click again to remove it. With no chip selected, nothing is filtered.
+- The bulk replace button works on exactly what the list shows, so filter first.
+
+## Replace one file everywhere
+
+Click **Replace** on a row. The same broken path is replaced in every place that uses it.
+
+1. Type or paste the new path. Spaces or `%20` both work.
+2. Or click **Browse**. It opens at the closest folder that still exists.
+3. The window tells you if the new file exists.
+4. Click **Apply replacement** and confirm.
+
+## Replace in bulk
+
+Click **Replace in bulk** at the top. It changes every item currently in the list.
+
+Pick how to match:
+
+- **Path starts with**: swap a folder. Example: find `REPOSITORIO/SONS/SAL_SOUND/` and replace with `REPOSITORIO/SAL_SOUNDBOARD/`.
+- **Path contains**: swap any piece of the path.
+- **Extension only**: change `mp3` to `ogg`, for example.
+
+For the first two you can also type a new extension to switch all files at once.
+
+The **Browse** buttons next to **Find** and **Replace with** let you pick the folder instead of typing it. Find starts at the folder your items share, and Replace starts where Find ended.
+
+The preview shows each old path, the new path, and whether the new file exists. By default, only paths whose new file exists are changed. This stops you from swapping one broken link for another.
+
+## Backups and undo
+
+Before changing anything, Assets Doctor can save a backup of the old values.
+
+- Backups are saved in your Foundry Data folder: `Data/asset-doctor/<world name>/backup-<date>.json`.
+- The backup checkbox is remembered. Uncheck it if you do not want backups.
+- If saving into Data fails, the backup is downloaded by your browser instead. If neither works, nothing is changed.
+- **Undo last replacement** (top bar) puts the old values back. It is available until you reload Foundry. After that, the backup file keeps the old values safe.
+
+## Hide for now
+
+Not ready to fix something? Click **Hide** on its row. It leaves the list and the counts, and bulk replace skips it. It is not deleted.
+
+To bring it back, open the **Hidden** tab and click **Show again** (or **Show all again**). Hidden items are remembered between sessions for your user in this world.
+
+## Export
+
+**Export CSV** saves what the list shows right now (with your filters) so you can open it in a spreadsheet.
+
+## Good to know
+
+- Assets Doctor writes to your world data when you apply a replacement. It also works in compendiums that are unlocked. A locked compendium shows an error in the result. Unlock it and try again.
+- It never moves or deletes files. Foundry does not allow modules to do that. Old files stay where they are.
+- Paths are saved URL style (`%20` for spaces), like Foundry's own file picker does.
+- It does not replace web links (`http...`), Foundry core files, bare file names with no folder, or the search folders list of Token Variant Art (that one is a module setting).
+- Text anywhere that ends in a known media extension counts as a path. A rare false alarm is possible. Use **Hide** for those.
+
+## Troubleshooting
+
+- **I do not see the button.** It is for GMs only. Reload Foundry with Ctrl+F5. You can also open it from the module settings.
+- **A message says my browser uses old files.** Reload with Ctrl+F5 (or clear the browser cache).
+- **The scan is slow.** Turn off the compendium options. Compendiums are the slow part.
+- **Something looks wrong after a replacement.** Click **Undo last replacement**, or use the backup file in `Data/asset-doctor/<world name>/`.
+
+## Links
+
+- Source and bug reports: [github.com/jacksands/asset-doctor](https://github.com/jacksands/asset-doctor)
+- Made by Jack_Sands for Foundry VTT v14. Ideas studied from Asset Auditor, Scene Packer, Pack My World and Snoot.

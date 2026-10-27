@@ -2,8 +2,10 @@ import { MODULE_ID, VERSION } from "./constants.mjs";
 import { _getState } from "./state.mjs";
 import {
   buildItems, checkItems, clearExistsCache, planDocs, applyPlan, undoBatch,
-  encodeStored, nearestExistingDir, isReplaceable
+  encodeStored, decodedNorm, nearestExistingDir, isReplaceable
 } from "./replace.mjs";
+import { extOf, dirOf } from "./extract.mjs";
+import { saveBackup, backupDir } from "./backup.mjs";
 
 const { ApplicationV2, DialogV2 } = foundry.applications.api;
 
@@ -70,11 +72,12 @@ export class ReplaceApp extends ApplicationV2 {
 
   // ---- HTML ---------------------------------------------------------------
   _commonHTML() {
+    const backupOn = _getState().options.backup !== false;
     return `
       <label class="rp-check"><input type="checkbox" id="rp-only-existing" checked>
         <span><b>${esc(t("ALD.Rep.OnlyExisting"))}</b><small>${esc(t("ALD.Rep.OnlyExistingHelp"))}</small></span></label>
-      <label class="rp-check"><input type="checkbox" id="rp-backup" checked>
-        <span><b>${esc(t("ALD.Rep.Backup"))}</b><small>${esc(t("ALD.Rep.BackupHelp"))}</small></span></label>
+      <label class="rp-check"><input type="checkbox" id="rp-backup" ${backupOn ? "checked" : ""}>
+        <span><b>${esc(t("ALD.Rep.Backup"))}</b><small>${esc(fmt("ALD.Rep.BackupHelp", { dir: backupDir() }))}</small></span></label>
       <div class="rp-note" id="rp-status"></div>
       <div class="rp-preview" id="rp-preview"></div>
       <div class="rp-progress" id="rp-progress" hidden>
@@ -130,9 +133,15 @@ export class ReplaceApp extends ApplicationV2 {
               <option value="ext">${esc(t("ALD.Rep.ModeExt"))}</option>
             </select></label>
           <label class="rp-field"><span id="rp-find-label">${esc(t("ALD.Rep.Find"))}</span>
-            <input type="text" id="rp-find" placeholder="${esc(t("ALD.Rep.FindPh"))}"></label>
+            <div class="rp-inline">
+              <input type="text" id="rp-find" placeholder="${esc(t("ALD.Rep.FindPh"))}">
+              <button type="button" class="ald-btn" data-action="browse-find" id="rp-browse-find" title="${esc(t("ALD.Rep.BrowseFind"))}"><i class="fa-solid fa-folder-open"></i> ${esc(t("ALD.Rep.Browse"))}</button>
+            </div></label>
           <label class="rp-field"><span id="rp-repl-label">${esc(t("ALD.Rep.ReplaceWith"))}</span>
-            <input type="text" id="rp-repl" placeholder="${esc(t("ALD.Rep.ReplPh"))}"></label>
+            <div class="rp-inline">
+              <input type="text" id="rp-repl" placeholder="${esc(t("ALD.Rep.ReplPh"))}">
+              <button type="button" class="ald-btn" data-action="browse-repl" id="rp-browse-repl" title="${esc(t("ALD.Rep.BrowseRepl"))}"><i class="fa-solid fa-folder-open"></i> ${esc(t("ALD.Rep.Browse"))}</button>
+            </div></label>
           <label class="rp-field" id="rp-newext-wrap"><span>${esc(t("ALD.Rep.AlsoExt"))}</span>
             <input type="text" id="rp-newext" placeholder="${esc(t("ALD.Rep.AlsoExtPh"))}"></label>
         </section>
@@ -149,7 +158,7 @@ export class ReplaceApp extends ApplicationV2 {
     root.addEventListener("input", () => this._debounced());
     root.addEventListener("change", (ev) => {
       if (ev.target.id === "rp-only-existing") { this._renderPreview(true); return; }
-      if (ev.target.id === "rp-backup") return;
+      if (ev.target.id === "rp-backup") { this._saveBackupPref(); return; }
       if (ev.target.id === "rp-mode") this._syncModeUI();
       this._debounced();
     });
@@ -180,6 +189,8 @@ export class ReplaceApp extends ApplicationV2 {
     q("#rp-find").placeholder = t(ext ? "ALD.Rep.FromExtPh" : "ALD.Rep.FindPh");
     q("#rp-repl").placeholder = t(ext ? "ALD.Rep.ToExtPh" : "ALD.Rep.ReplPh");
     q("#rp-newext-wrap").hidden = ext;
+    q("#rp-browse-find").hidden = ext;
+    q("#rp-browse-repl").hidden = ext;
   }
 
   _debounced() {
@@ -262,6 +273,8 @@ export class ReplaceApp extends ApplicationV2 {
     switch (el.dataset.action) {
       case "close": return void this.close();
       case "browse": return void this._browse();
+      case "browse-find": return void this._browseField("find");
+      case "browse-repl": return void this._browseField("repl");
       case "apply": return void this._apply();
       case "undo": return void this._undo();
       default: return;
@@ -332,7 +345,7 @@ export class ReplaceApp extends ApplicationV2 {
       const answer = await DialogV2.wait({
         window: { title: t("ALD.Rep.ConfirmTitle") },
         content: `<p>${esc(fmt("ALD.Rep.ConfirmText", { paths: items.length, docs: plan.changes.length, uses: plan.uses }))}</p>` +
-          (wantBackup ? `<p>${esc(t("ALD.Rep.ConfirmBackup"))}</p>` : ""),
+          (wantBackup ? `<p>${esc(fmt("ALD.Rep.ConfirmBackup", { dir: backupDir() }))}</p>` : ""),
         buttons: [
           { action: "yes", label: t("ALD.Rep.ConfirmYes"), default: true },
           { action: "no", label: t("ALD.Cancel") }
@@ -341,13 +354,27 @@ export class ReplaceApp extends ApplicationV2 {
       }).catch(() => null);
       if (answer !== "yes") { this._setStatus(""); return; }
 
-      if (wantBackup) this._saveBackup(plan);
+      let backupInfo = null;
+      if (wantBackup) {
+        this._progress(t("ALD.Rep.SavingBackup"));
+        backupInfo = await saveBackup({
+          module: MODULE_ID, version: VERSION, world: game.world.id, at: new Date().toISOString(),
+          mapping: [...map].map(([from, to]) => ({ from, to })),
+          entries: plan.changes.map((c) => ({ uuid: c.uuid, old: c.old }))
+        });
+        if (!backupInfo) {
+          ui.notifications.error(t("ALD.Rep.BackupAbort"));
+          this._setStatus(t("ALD.Rep.BackupAbort"));
+          return;
+        }
+        if (backupInfo.where === "download") ui.notifications.warn(fmt("ALD.Rep.BackupDownloaded", { dir: backupDir() }));
+      }
 
       this._progress(t("ALD.Rep.Applying"));
       const { failures, batch } = await applyPlan(plan, (d, tot) => this._progress(t("ALD.Rep.Applying"), d, tot), () => this._cancel);
       S.lastBatch = batch;
       clearExistsCache();
-      this._showResult(plan, failures);
+      this._showResult(plan, failures, backupInfo);
       this._d.onDone?.();
     } catch (err) {
       console.error(`[${MODULE_ID}]`, err);
@@ -358,22 +385,47 @@ export class ReplaceApp extends ApplicationV2 {
     }
   }
 
-  _saveBackup(plan) {
-    try {
-      const data = {
-        module: MODULE_ID, version: VERSION, world: game.world.id, at: new Date().toISOString(),
-        entries: plan.changes.map((c) => ({ uuid: c.uuid, old: c.old }))
-      };
-      const save = foundry.utils?.saveDataToFile ?? globalThis.saveDataToFile;
-      save(JSON.stringify(data, null, 2), "application/json",
-        `assets-doctor-backup-${game.world.id}-${new Date().toISOString().replace(/[:.]/g, "-")}.json`);
-    } catch (err) {
-      console.warn(`[${MODULE_ID}] nao foi possivel salvar o backup`, err);
-      ui.notifications.warn(t("ALD.Rep.BackupFailed"));
-    }
+  async _saveBackupPref() {
+    const S = _getState();
+    S.options.backup = this._root?.querySelector("#rp-backup")?.checked !== false;
+    try { await game.settings.set(MODULE_ID, "scanOptions", { ...S.options }); } catch { /* ignora */ }
   }
 
-  _showResult(plan, failures) {
+  /** Maior pasta em comum entre os itens candidatos (ponto de partida do navegador). */
+  _commonDir() {
+    const dirs = this._d.groups.filter(isReplaceable).map((g) => dirOf(g.norm).split("/"));
+    if (!dirs.length) return "";
+    let common = dirs[0];
+    for (const d of dirs.slice(1)) {
+      let i = 0;
+      while (i < common.length && i < d.length && common[i] === d[i]) i++;
+      common = common.slice(0, i);
+      if (!common.length) break;
+    }
+    return common.join("/");
+  }
+
+  /** Navegador de pastas/arquivos para os campos Procurar e Trocar por. */
+  async _browseField(which) {
+    const r = this._root;
+    const mode = r.querySelector("#rp-mode").value;
+    const input = r.querySelector(which === "find" ? "#rp-find" : "#rp-repl");
+    const base = which === "find" ? this._commonDir() : (decodedNorm(r.querySelector("#rp-find").value) || this._commonDir());
+    const start = await nearestExistingDir(`${base.replace(/\/+$/, "")}/x`);
+    const FP = foundry.applications.apps.FilePicker.implementation;
+    new FP({
+      type: mode === "prefix" ? "folder" : "any",
+      current: start,
+      callback: (path) => {
+        const p = decodedNorm(path);
+        const isFile = !!extOf(p);
+        input.value = mode === "prefix" && !isFile ? p.replace(/\/*$/, "/") : p;
+        this._recompute();
+      }
+    }).render({ force: true });
+  }
+
+  _showResult(plan, failures, backupInfo) {
     const r = this._root;
     if (!r) return;
     let html = `<div class="rp-done"><b>${esc(fmt("ALD.Rep.Done", { docs: plan.changes.length - failures.length, uses: plan.uses }))}</b>`;
@@ -381,6 +433,11 @@ export class ReplaceApp extends ApplicationV2 {
     if (failures.length) {
       html += `<div class="rp-fail">${esc(fmt("ALD.Rep.Failures", { n: failures.length }))}<ul>` +
         failures.slice(0, 20).map((f) => `<li>${esc(f.name)}: ${esc(f.message)}</li>`).join("") + `</ul></div>`;
+    }
+    if (backupInfo) {
+      html += `<div>${esc(backupInfo.where === "data"
+        ? fmt("ALD.Rep.BackupSaved", { path: backupInfo.path })
+        : fmt("ALD.Rep.BackupDownloaded", { dir: backupDir() }))}</div>`;
     }
     html += `<div>${esc(t("ALD.Rep.RescanNote"))}</div></div>`;
     r.querySelector("#rp-preview").innerHTML = html;

@@ -171,7 +171,8 @@
       "broken": "Quebrados",
       "warn": "Atenção",
       "ok": "OK",
-      "skip": "Ignorados"
+      "skip": "Ignorados",
+      "hidden": "Ocultos"
     },
     "InfoLine": "Verificado: {scope} | {paths} caminhos | {uses} usos | {secs}s",
     "ReadWarnings": "{n} avisos de leitura",
@@ -205,8 +206,8 @@
       "ToExtPh": "ex.: ogg",
       "OnlyExisting": "Só trocar quando o arquivo novo existir",
       "OnlyExistingHelp": "Evita trocar um link quebrado por outro link quebrado.",
-      "Backup": "Salvar um arquivo de segurança antes de trocar",
-      "BackupHelp": "Baixa um .json com os valores antigos. Também dá para desfazer pelo botão da janela principal.",
+      "Backup": "Salvar um backup antes de trocar",
+      "BackupHelp": "Fica em Data/{dir}/ para você poder restaurar os valores depois. Desmarque para trocar sem backup.",
       "BackupFailed": "Não foi possível salvar o arquivo de segurança.",
       "Summary": "{paths} caminhos | {uses} usos | {ok} com arquivo novo existente | {missing} sem arquivo novo",
       "Apply": "Aplicar troca",
@@ -218,7 +219,7 @@
       "NothingToChange": "Nenhum documento para alterar. {n} usos não puderam ser localizados.",
       "ConfirmTitle": "Confirmar troca",
       "ConfirmText": "Trocar {paths} caminhos em {docs} documentos ({uses} usos)? Isso grava nos dados do seu mundo.",
-      "ConfirmBackup": "Um arquivo de segurança será baixado antes.",
+      "ConfirmBackup": "Um backup será salvo em Data/{dir}/ antes de qualquer mudança.",
       "ConfirmYes": "Trocar",
       "Done": "Pronto: {docs} documentos alterados, {uses} usos trocados.",
       "Unresolved": "{n} usos não puderam ser localizados automaticamente (podem estar em dados de outros módulos).",
@@ -230,9 +231,21 @@
       "NewMissing": "arquivo novo não encontrado",
       "NoMatch": "Nenhum item da lista combina com esta regra.",
       "TypeToPreview": "Digite acima para ver a prévia.",
-      "MoreRows": "... e mais {n} itens (todos serão trocados)."
+      "MoreRows": "... e mais {n} itens (todos serão trocados).",
+      "BackupSaved": "Backup salvo em Data/{path}",
+      "BackupDownloaded": "Não foi possível salvar em Data/{dir}/. O backup foi baixado pelo navegador.",
+      "BackupAbort": "Não foi possível salvar o backup, então nada foi alterado. Desmarque a opção de backup para continuar sem ele.",
+      "SavingBackup": "Salvando o backup",
+      "BrowseFind": "Procurar a pasta ou o arquivo a ser trocado",
+      "BrowseRepl": "Procurar a nova pasta ou o novo arquivo"
     },
     "SettingsButton": "Assets Doctor",
-    "SettingsButtonTip": "Abrir o verificador e trocador de assets"
+    "SettingsButtonTip": "Abrir o verificador e trocador de assets",
+    "Hide": "Ocultar",
+    "HideTip": "Ocultar por enquanto. Sai da lista até você mostrar de novo na aba Ocultos.",
+    "Unhide": "Mostrar de novo",
+    "UnhideTip": "Voltar este item para a lista",
+    "UnhideAll": "Mostrar todos de novo",
+    "EmptyHidden": "Nada oculto. Use o botão Ocultar de uma linha para tirá-la da lista por enquanto."
   }
 }

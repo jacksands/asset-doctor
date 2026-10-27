@@ -171,7 +171,8 @@
       "broken": "Broken",
       "warn": "Attention",
       "ok": "OK",
-      "skip": "Ignored"
+      "skip": "Ignored",
+      "hidden": "Hidden"
     },
     "InfoLine": "Checked: {scope} | {paths} paths | {uses} uses | {secs}s",
     "ReadWarnings": "{n} read warnings",
@@ -205,8 +206,8 @@
       "ToExtPh": "e.g. ogg",
       "OnlyExisting": "Only replace when the new file exists",
       "OnlyExistingHelp": "Avoids swapping a broken link for another broken link.",
-      "Backup": "Save a backup file before replacing",
-      "BackupHelp": "Downloads a .json with the old values. You can also undo from the main window button.",
+      "Backup": "Save a backup before replacing",
+      "BackupHelp": "Saved in Data/{dir}/ so you can restore the values later. Uncheck to replace without a backup.",
       "BackupFailed": "Could not save the backup file.",
       "Summary": "{paths} paths | {uses} uses | {ok} with an existing new file | {missing} without a new file",
       "Apply": "Apply replacement",
@@ -218,7 +219,7 @@
       "NothingToChange": "No documents to change. {n} uses could not be located.",
       "ConfirmTitle": "Confirm replacement",
       "ConfirmText": "Replace {paths} paths in {docs} documents ({uses} uses)? This writes to your world data.",
-      "ConfirmBackup": "A backup file will be downloaded first.",
+      "ConfirmBackup": "A backup will be saved in Data/{dir}/ before anything changes.",
       "ConfirmYes": "Replace",
       "Done": "Done: {docs} documents changed, {uses} uses replaced.",
       "Unresolved": "{n} uses could not be located automatically (they may live in other modules' data).",
@@ -230,9 +231,21 @@
       "NewMissing": "new file not found",
       "NoMatch": "No item in the list matches this rule.",
       "TypeToPreview": "Type above to see the preview.",
-      "MoreRows": "... and {n} more items (all will be replaced)."
+      "MoreRows": "... and {n} more items (all will be replaced).",
+      "BackupSaved": "Backup saved in Data/{path}",
+      "BackupDownloaded": "Could not save to Data/{dir}/. The backup was downloaded by your browser instead.",
+      "BackupAbort": "The backup could not be saved, so nothing was changed. Uncheck the backup option to continue without it.",
+      "SavingBackup": "Saving the backup",
+      "BrowseFind": "Browse for the folder or file to find",
+      "BrowseRepl": "Browse for the new folder or file"
     },
     "SettingsButton": "Assets Doctor",
-    "SettingsButtonTip": "Open the asset checker and replacer"
+    "SettingsButtonTip": "Open the asset checker and replacer",
+    "Hide": "Hide",
+    "HideTip": "Hide for now. It stays out of the list until you show it again in the Hidden tab.",
+    "Unhide": "Show again",
+    "UnhideTip": "Bring this item back into the list",
+    "UnhideAll": "Show all again",
+    "EmptyHidden": "Nothing hidden. Use a row's Hide button to take it out of the list for now."
   }
 }

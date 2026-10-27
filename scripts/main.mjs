@@ -1,6 +1,6 @@
 // ============================================================
 // MODULE: Assets Doctor
-// ID:     asset-link-doctor
+// ID:     asset-doctor
 // Foundry VTT V14
 // ============================================================
 import { MODULE_ID, VERSION, log } from "./constants.mjs";
@@ -10,7 +10,8 @@ import { runScan } from "./scan.mjs";
 
 // Estado unico, compartilhado entre os arquivos via _setStateRef/_getState
 export const STATE = {
-  options: { world: true, compendiums: false, modulePacks: false, module: false, moduleId: "" },
+  options: { world: true, compendiums: false, modulePacks: false, module: false, moduleId: "", backup: true },
+  hidden: {},
   scanning: false,
   cancel: false,
   result: null,
@@ -27,6 +28,31 @@ _setStateRef(STATE);
 // ============================================================
 // Viewer de instrucoes (ApplicationV2)
 // ============================================================
+/** Conversor simples de Markdown: titulos, listas, **negrito**, `codigo` e links. */
+function mdToHtml(md) {
+  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  const inline = (s) => esc(s)
+    .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+    .replace(/`(.+?)`/g, "<code>$1</code>")
+    .replace(/\[(.+?)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  let html = "";
+  let list = null;
+  const close = () => { if (list) { html += `</${list}>`; list = null; } };
+  for (const raw of md.split("\n")) {
+    const line = raw.trimEnd();
+    const h = line.match(/^(#{1,3}) (.+)$/);
+    if (h) { close(); html += `<h${h[1].length}>${inline(h[2])}</h${h[1].length}>`; continue; }
+    const ul = line.match(/^- (.+)$/);
+    if (ul) { if (list !== "ul") { close(); html += "<ul>"; list = "ul"; } html += `<li>${inline(ul[1])}</li>`; continue; }
+    const ol = line.match(/^\d+\. (.+)$/);
+    if (ol) { if (list !== "ol") { close(); html += "<ol>"; list = "ol"; } html += `<li>${inline(ol[1])}</li>`; continue; }
+    close();
+    if (line.trim()) html += `<p>${inline(line)}</p>`;
+  }
+  close();
+  return html;
+}
+
 class InstructionsViewer extends foundry.applications.api.ApplicationV2 {
   static DEFAULT_OPTIONS = {
     id: `${MODULE_ID}-instructions`,
@@ -35,19 +61,10 @@ class InstructionsViewer extends foundry.applications.api.ApplicationV2 {
   };
 
   async _renderHTML() {
-    const md = await fetch(`modules/${MODULE_ID}/INSTRUCTIONS.md`).then((r) => r.text()).catch(() => "Arquivo não encontrado.");
-    const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    const html = esc(md)
-      .replace(/^### (.+)$/gm, "<h3>$1</h3>")
-      .replace(/^## (.+)$/gm, "<h2>$1</h2>")
-      .replace(/^# (.+)$/gm, "<h1>$1</h1>")
-      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
-      .replace(/`(.+?)`/g, "<code>$1</code>")
-      .replace(/^- (.+)$/gm, "<li>$1</li>")
-      .replace(/\n/g, "<br>");
+    const md = await fetch(`modules/${MODULE_ID}/INSTRUCTIONS.md`).then((r) => r.text()).catch(() => "INSTRUCTIONS.md not found.");
     const div = document.createElement("div");
     div.className = "ald-instructions";
-    div.innerHTML = html;
+    div.innerHTML = mdToHtml(md);
     return div;
   }
 
@@ -101,7 +118,15 @@ Hooks.once("init", () => {
     scope: "user",
     config: false,
     type: Object,
-    default: { world: true, compendiums: false, modulePacks: false, module: false, moduleId: "" }
+    default: { world: true, compendiums: false, modulePacks: false, module: false, moduleId: "", backup: true }
+  });
+
+  // Caminhos ocultos "por enquanto" (por usuario, por mundo)
+  game.settings.register(MODULE_ID, "hiddenPaths", {
+    scope: "user",
+    config: false,
+    type: Object,
+    default: {}
   });
 
   game.settings.registerMenu(MODULE_ID, "scanner", {
@@ -132,8 +157,16 @@ Hooks.once("ready", () => {
     const saved = game.settings.get(MODULE_ID, "scanOptions") ?? {};
     for (const k of ["world", "compendiums", "modulePacks", "module"]) if (typeof saved[k] === "boolean") STATE.options[k] = saved[k];
     if (typeof saved.moduleId === "string") STATE.options.moduleId = saved.moduleId;
+    if (typeof saved.backup === "boolean") STATE.options.backup = saved.backup;
   } catch (e) {
     console.warn(`[${MODULE_ID}] nao foi possivel ler as opcoes salvas`, e);
+  }
+
+  try {
+    const hidden = game.settings.get(MODULE_ID, "hiddenPaths");
+    if (hidden && typeof hidden === "object") STATE.hidden = { ...hidden };
+  } catch (e) {
+    console.warn(`[${MODULE_ID}] nao foi possivel ler os itens ocultos`, e);
   }
 
   // Navegador com arquivos antigos em cache: o manifesto (sempre novo) nao bate com o codigo carregado

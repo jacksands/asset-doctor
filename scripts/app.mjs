@@ -19,7 +19,7 @@ const fmt = (key, data = {}) => {
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => (
   { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
 ));
-const TABS = ["problems", "broken", "warn", "ok", "skip"];
+const TABS = ["problems", "broken", "warn", "ok", "skip", "hidden"];
 const KIND_ICON = {
   image: "fa-image", video: "fa-film", audio: "fa-music", other: "fa-file", folder: "fa-folder"
 };
@@ -33,7 +33,12 @@ const parseExts = (s) => (s ?? "").split(/[\s,;]+/).map((x) => x.replace(/^\./, 
 const sevOf = (g) => SEVERITY[g.status] ?? "skip";
 const anyOn = (o) => Object.values(o).some(Boolean);
 
+const isHidden = (g) => !!_getState().hidden?.[g.norm];
+
 const statusMatch = (g, status) => {
+  const hid = isHidden(g);
+  if (status === "hidden") return hid;
+  if (hid) return false;
   const sev = sevOf(g);
   return status === "problems" ? sev === "broken" || sev === "warn" : sev === status;
 };
@@ -292,6 +297,22 @@ export class AssetLinkDoctorApp extends ApplicationV2 {
       case "copy": ev.stopPropagation(); return void this._copy(el.dataset.path);
       case "open": ev.stopPropagation(); return void this._open(el.dataset.uuids);
       case "replace": ev.stopPropagation(); return this._openSingle(el.dataset.key);
+      case "hide":
+      case "unhide": {
+        ev.stopPropagation();
+        const g = S.index?.get(el.dataset.key);
+        if (!g) return;
+        S.hidden = { ...(S.hidden ?? {}) };
+        if (a === "hide") S.hidden[g.norm] = Date.now(); else delete S.hidden[g.norm];
+        void this._saveHidden();
+        this._renderFilters();
+        return this._renderList();
+      }
+      case "unhide-all":
+        S.hidden = {};
+        void this._saveHidden();
+        this._renderFilters();
+        return this._renderList();
       default: return;
     }
     S.limit = 200;
@@ -324,6 +345,11 @@ export class AssetLinkDoctorApp extends ApplicationV2 {
     }
     await this._saveOptions();
     this._syncScanUI();
+  }
+
+  async _saveHidden() {
+    const S = _getState();
+    try { await game.settings.set(MODULE_ID, "hiddenPaths", { ...(S.hidden ?? {}) }); } catch { /* ignora */ }
   }
 
   async _saveOptions() {
@@ -469,10 +495,12 @@ export class AssetLinkDoctorApp extends ApplicationV2 {
   _renderFilters() {
     const S = _getState();
     const f = S.filters;
-    const { groups, counts } = S.result;
+    const { groups } = S.result;
 
     // abas de situacao (uma por vez)
-    const tabCount = { problems: counts.broken + counts.warn, broken: counts.broken, warn: counts.warn, ok: counts.ok, skip: counts.skip };
+    const live = { broken: 0, warn: 0, ok: 0, skip: 0, hidden: 0 };
+    for (const g of groups) { if (isHidden(g)) live.hidden++; else live[sevOf(g)]++; }
+    const tabCount = { problems: live.broken + live.warn, broken: live.broken, warn: live.warn, ok: live.ok, skip: live.skip, hidden: live.hidden };
     this._root.querySelector("#ald-tabs").innerHTML = TABS.map((tb) =>
       `<button type="button" class="ald-tab ${f.status === tb ? "on" : ""} ald-tab-${tb}" data-action="tab" data-id="${tb}">${esc(t(`ALD.Tab.${tb}`))} <em>${tabCount[tb]}</em></button>`).join("");
 
@@ -528,11 +556,13 @@ export class AssetLinkDoctorApp extends ApplicationV2 {
     const shown = matches.slice(0, S.limit);
 
     const rows = shown.map((g) => this._rowHTML(g, !!S.expanded[g.key])).join("");
-    r.querySelector("#ald-list").innerHTML = rows || `<div class="ald-empty">${esc(t("ALD.Empty"))}</div>`;
+    const emptyKey = S.filters.status === "hidden" ? "ALD.EmptyHidden" : "ALD.Empty";
+    r.querySelector("#ald-list").innerHTML = rows || `<div class="ald-empty">${esc(t(emptyKey))}</div>`;
 
     r.querySelector("#ald-footer").innerHTML =
       `<span>${esc(fmt("ALD.Showing", { shown: shown.length, total: matches.length }))}</span>` +
-      (matches.length > shown.length ? `<button type="button" class="ald-btn" data-action="more">${esc(t("ALD.More"))}</button>` : "");
+      (matches.length > shown.length ? `<button type="button" class="ald-btn" data-action="more">${esc(t("ALD.More"))}</button>` : "") +
+      (S.filters.status === "hidden" && matches.length ? `<button type="button" class="ald-btn" data-action="unhide-all"><i class="fa-solid fa-eye"></i> ${esc(t("ALD.UnhideAll"))}</button>` : "");
   }
 
   _rowHTML(g, expanded) {
@@ -541,6 +571,7 @@ export class AssetLinkDoctorApp extends ApplicationV2 {
     const uses = g.count === 1 ? t("ALD.Use1") : fmt("ALD.Uses", { n: g.count });
     const badge = g.isWildcard ? `<span class="ald-tag">${esc(t("ALD.Wildcard"))}</span>` : "";
     const canReplace = isReplaceable(g);
+    const hidden = isHidden(g);
     let refsHTML = "";
     if (expanded) {
       const items = g.refs.slice(0, 100).map((ref) => {
@@ -566,7 +597,10 @@ export class AssetLinkDoctorApp extends ApplicationV2 {
         <span class="ald-path" title="${esc(g.norm)}">${esc(g.norm)}</span>
         ${badge}
         <span class="ald-uses">${esc(uses)}</span>
-        ${canReplace ? `<button type="button" class="ald-replace" data-action="replace" data-key="${esc(g.key)}" title="${esc(t("ALD.ReplaceTip"))}"><i class="fa-solid fa-right-left"></i> ${esc(t("ALD.Replace"))}</button>` : ""}
+        ${hidden
+          ? `<button type="button" class="ald-hide" data-action="unhide" data-key="${esc(g.key)}" title="${esc(t("ALD.UnhideTip"))}"><i class="fa-solid fa-eye"></i> ${esc(t("ALD.Unhide"))}</button>`
+          : `<button type="button" class="ald-hide" data-action="hide" data-key="${esc(g.key)}" title="${esc(t("ALD.HideTip"))}"><i class="fa-solid fa-eye-slash"></i> ${esc(t("ALD.Hide"))}</button>`}
+        ${canReplace && !hidden ? `<button type="button" class="ald-replace" data-action="replace" data-key="${esc(g.key)}" title="${esc(t("ALD.ReplaceTip"))}"><i class="fa-solid fa-right-left"></i> ${esc(t("ALD.Replace"))}</button>` : ""}
         <button type="button" class="ald-mini" data-action="copy" data-path="${esc(g.norm)}" title="${esc(t("ALD.Copy"))}"><i class="fa-regular fa-copy"></i></button>
       </div>
       ${detail ? `<div class="ald-detail">${esc(detail)}</div>` : ""}
