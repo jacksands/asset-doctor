@@ -15,7 +15,7 @@
   ],
   "url": "https://github.com/jacksands/asset-doctor",
   "manifest": "https://raw.githubusercontent.com/jacksands/asset-doctor/refs/heads/main/module.json",
-  "download": "https://github.com/jacksands/asset-doctor/archive/refs/heads/main.zip",
+  "download": "https://github.com/jacksands/asset-doctor/releases/download/1.0.1-beta/module.zip",
   "bugs": "https://github.com/jacksands/asset-doctor/issues",
   "esmodules": [
     "scripts/main.mjs"
