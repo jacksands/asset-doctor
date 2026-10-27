@@ -2,26 +2,26 @@
   "id": "asset-doctor",
   "title": "Assets Doctor",
   "description": "Finds broken asset links in your world and compendiums, then fixes them: replace one file everywhere or many at once, with preview, backup and undo.",
-  "version": "1.0.1-beta",
-  "compatibility": {
-    "minimum": "14",
-    "verified": "14"
-  },
+  "version": "1.0.0-beta",
   "authors": [
     {
       "name": "Jack_Sands",
       "url": "https://github.com/jacksands"
     }
   ],
-  "url": "https://github.com/jacksands/asset-doctor",
-  "manifest": "https://raw.githubusercontent.com/jacksands/asset-doctor/refs/heads/main/module.json",
-  "download": "https://github.com/jacksands/asset-doctor/releases/download/1.0.1-beta/module.zip",
-  "bugs": "https://github.com/jacksands/asset-doctor/issues",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14",
+    "maximum": "14"
+  },
   "esmodules": [
     "scripts/main.mjs"
   ],
   "styles": [
-    "styles/module.css"
+    {
+      "src": "styles/module.css",
+      "layer": "modules"
+    }
   ],
   "languages": [
     {
@@ -34,5 +34,9 @@
       "name": "English",
       "path": "lang/en.json"
     }
-  ]
+  ],
+  "url": "https://github.com/jacksands/asset-doctor",
+  "manifest": "https://raw.githubusercontent.com/jacksands/asset-doctor/refs/heads/main/module.json",
+  "download": "https://github.com/jacksands/asset-doctor/archive/refs/heads/main.zip",
+  "bugs": "https://github.com/jacksands/asset-doctor/issues"
 }
