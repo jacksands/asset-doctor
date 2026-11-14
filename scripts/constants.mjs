@@ -1,5 +1,7 @@
 export const MODULE_ID = "asset-doctor";
-export const VERSION = "1.0.2-beta";
+/** Versao do modulo, lida do module.json em execucao (uma unica fonte). */
+export const getVersion = () => game.modules?.get(MODULE_ID)?.version ?? "unknown";
+
 
 export const IMAGE_EXT = new Set(["png", "jpg", "jpeg", "webp", "gif", "svg", "avif", "bmp", "apng", "ico", "tif", "tiff"]);
 export const VIDEO_EXT = new Set(["mp4", "webm", "ogv", "m4v", "mov", "mkv"]);

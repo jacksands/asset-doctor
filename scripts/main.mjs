@@ -3,7 +3,7 @@
 // ID:     asset-doctor
 // Foundry VTT V14
 // ============================================================
-import { MODULE_ID, VERSION, log } from "./constants.mjs";
+import { MODULE_ID, getVersion, log } from "./constants.mjs";
 import { _setStateRef } from "./state.mjs";
 import { AssetLinkDoctorApp, defaultFilters } from "./app.mjs";
 import { runScan } from "./scan.mjs";
@@ -175,6 +175,7 @@ Hooks.once("ready", () => {
     for (const k of ["world", "compendiums", "modulePacks", "module"]) if (typeof saved[k] === "boolean") STATE.options[k] = saved[k];
     if (typeof saved.moduleId === "string") STATE.options.moduleId = saved.moduleId;
     if (typeof saved.backup === "boolean") STATE.options.backup = saved.backup;
+    if (saved.copy && typeof saved.copy === "object") STATE.options.copy = saved.copy;
   } catch (e) {
     console.warn(`[${MODULE_ID}] nao foi possivel ler as opcoes salvas`, e);
   }
@@ -186,14 +187,8 @@ Hooks.once("ready", () => {
     console.warn(`[${MODULE_ID}] nao foi possivel ler os itens ocultos`, e);
   }
 
-  // Navegador com arquivos antigos em cache: o manifesto (sempre novo) nao bate com o codigo carregado
-  const manifestVersion = game.modules.get(MODULE_ID)?.version;
-  if (manifestVersion && manifestVersion !== VERSION && game.user.isGM) {
-    ui.notifications.warn(game.i18n.localize("ALD.StaleCache"), { permanent: true });
-  }
-
   game.modules.get(MODULE_ID).api = {
-    version: VERSION,
+    get version() { return getVersion(); },
     /** Abre a janela (somente GM). */
     open: openScanner,
     /** Roda a varredura sem janela e devolve o resultado. */

@@ -1,4 +1,4 @@
-import { MODULE_ID, VERSION } from "./constants.mjs";
+import { MODULE_ID, getVersion } from "./constants.mjs";
 import { _getState } from "./state.mjs";
 import {
   buildItems, checkItems, clearExistsCache, planDocs, applyPlan, undoBatch,
@@ -358,7 +358,7 @@ export class ReplaceApp extends ApplicationV2 {
       if (wantBackup) {
         this._progress(t("ALD.Rep.SavingBackup"));
         backupInfo = await saveBackup({
-          module: MODULE_ID, version: VERSION, world: game.world.id, at: new Date().toISOString(),
+          module: MODULE_ID, version: getVersion(), world: game.world.id, at: new Date().toISOString(),
           mapping: [...map].map(([from, to]) => ({ from, to })),
           entries: plan.changes.map((c) => ({ uuid: c.uuid, old: c.old }))
         });

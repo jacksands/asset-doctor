@@ -3,6 +3,7 @@ import { _getState } from "./state.mjs";
 import { runScan } from "./scan.mjs";
 import { pickModule, modulesWithPacks } from "./module-picker.mjs";
 import { openReplace } from "./replace-app.mjs";
+import { openCopy } from "./copy-app.mjs";
 import { isReplaceable, undoBatch } from "./replace.mjs";
 
 const { ApplicationV2, DialogV2 } = foundry.applications.api;
@@ -127,6 +128,7 @@ function shellHTML(scopeOpen) {
       <button type="button" class="ald-btn-primary" data-action="scan" id="ald-btn-scan"><i class="fa-solid fa-magnifying-glass"></i> ${esc(t("ALD.Scan"))}</button>
       <button type="button" class="ald-btn" data-action="cancel" id="ald-btn-cancel" hidden><i class="fa-solid fa-xmark"></i> ${esc(t("ALD.Cancel"))}</button>
       <button type="button" class="ald-btn" data-action="bulk" id="ald-btn-bulk" disabled title="${esc(t("ALD.BulkTip"))}"><i class="fa-solid fa-right-left"></i> ${esc(t("ALD.Bulk"))}</button>
+      <button type="button" class="ald-btn" data-action="copy-assets" id="ald-btn-copy" disabled title="${esc(t("ALD.CopyAssetsTip"))}"><i class="fa-solid fa-box-archive"></i> ${esc(t("ALD.CopyAssets"))}</button>
       <button type="button" class="ald-btn" data-action="undo-last" id="ald-btn-undo" hidden><i class="fa-solid fa-rotate-left"></i> ${esc(t("ALD.UndoLast"))}</button>
       <button type="button" class="ald-btn" data-action="export" id="ald-btn-export" disabled><i class="fa-solid fa-file-csv"></i> ${esc(t("ALD.Export"))}</button>
       <button type="button" class="ald-btn" data-action="maximize" id="ald-btn-max"><i class="fa-solid fa-expand"></i> <span>${esc(t("ALD.Maximize"))}</span></button>
@@ -277,6 +279,7 @@ export class AssetLinkDoctorApp extends ApplicationV2 {
       case "pick-module": return void this._chooseModule();
       case "maximize": return this._toggleMax();
       case "bulk": return this._openBulk();
+      case "copy-assets": return this._openCopy();
       case "undo-last": return void this._undoLast();
       case "toggle-filters":
         S.filtersOpen = !S.filtersOpen;
@@ -438,6 +441,7 @@ export class AssetLinkDoctorApp extends ApplicationV2 {
     r.querySelector("#ald-btn-cancel").hidden = !S.scanning;
     r.querySelector("#ald-btn-export").disabled = S.scanning || !S.result;
     r.querySelector("#ald-btn-bulk").disabled = S.scanning || !S.result;
+    r.querySelector("#ald-btn-copy").disabled = S.scanning || !S.result;
     r.querySelector("#ald-btn-undo").hidden = !S.lastBatch;
     r.querySelector("#ald-btn-undo").disabled = S.scanning;
     for (const id of ["world", "comp", "module"]) r.querySelector(`#ald-opt-${id}`).disabled = S.scanning;
@@ -601,7 +605,7 @@ export class AssetLinkDoctorApp extends ApplicationV2 {
           ? `<button type="button" class="ald-hide" data-action="unhide" data-key="${esc(g.key)}" title="${esc(t("ALD.UnhideTip"))}"><i class="fa-solid fa-eye"></i> ${esc(t("ALD.Unhide"))}</button>`
           : `<button type="button" class="ald-hide" data-action="hide" data-key="${esc(g.key)}" title="${esc(t("ALD.HideTip"))}"><i class="fa-solid fa-eye-slash"></i> ${esc(t("ALD.Hide"))}</button>`}
         ${canReplace && !hidden ? `<button type="button" class="ald-replace" data-action="replace" data-key="${esc(g.key)}" title="${esc(t("ALD.ReplaceTip"))}"><i class="fa-solid fa-right-left"></i> ${esc(t("ALD.Replace"))}</button>` : ""}
-        <button type="button" class="ald-mini" data-action="copy" data-path="${esc(g.norm)}" title="${esc(t("ALD.Copy"))}"><i class="fa-regular fa-copy"></i></button>
+        <button type="button" class="ald-mini" data-action="copy" data-path="${esc(g.norm)}" title="${esc(t("ALD.CopyPath"))}"><i class="fa-regular fa-copy"></i></button>
       </div>
       ${detail ? `<div class="ald-detail">${esc(detail)}</div>` : ""}
       ${refsHTML}
@@ -620,6 +624,12 @@ export class AssetLinkDoctorApp extends ApplicationV2 {
     const S = _getState();
     if (!S.result) return;
     openReplace({ mode: "bulk", groups: this._matches(), onDone: () => this._startScan() });
+  }
+
+  _openCopy() {
+    const S = _getState();
+    if (!S.result) return;
+    openCopy({ groups: S.result.groups, scanOptions: S.result.options, onDone: () => this._startScan() });
   }
 
   async _undoLast() {
