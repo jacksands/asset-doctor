@@ -114,7 +114,10 @@
       "OptimizerWarn": "Active modules that change files on upload: {list}. They can convert images (for example PNG and JPG to WebP) or rename files, so the copy is no longer identical to the original. For exact copies, turn those modules off and reload Foundry. Or tick \"Accept files that another module changed during upload\" below: the world paths will then point to the converted files.",
       "BackupTipTitle": "Before changing any path: make Foundry's own world backup",
       "BackupTipText": "Close this world, open Setup, right-click the world and choose Backup. It works as a second safety net next to this module's backup (which only keeps the old values of what it changes). It is an extra precaution and takes a few seconds.",
-      "UsedBy": "Copied files by where they are used: {list}."
+      "UsedBy": "Copied files by where they are used: {list}.",
+      "NeedsAttention": "Needs your attention ({n})",
+      "SkippedOnPurpose": "Skipped on purpose ({n})",
+      "NothingNeedsAttention": "Nothing needs your attention."
     },
     "Copied": "Path copied.",
     "CantOpen": "Could not open this document.",
@@ -341,6 +344,15 @@
     "EmptyHidden": "Nothing hidden. Use a row's Hide button to take it out of the list for now.",
     "CopyAssets": "Copy assets",
     "CopyAssetsTip": "Copies the files this world uses into a folder you choose (for example a module's folder)",
-    "CopyPath": "Copy path"
+    "CopyPath": "Copy path",
+    "RestoreBackup": "Restore backup...",
+    "RestoreBackupTip": "Restores the old values from a backup file saved in Data/asset-doctor/<world>/",
+    "RestoreBadFile": "This file is not an Assets Doctor backup.",
+    "RestoreOtherWorld": "This backup is from the world \"{world}\" and cannot be restored in this world.",
+    "RestoreNothing": "The backup has nothing to restore.",
+    "RestoreConfirm": "Restore {n} documents with the values from the backup made on {date}? If you changed the same fields of these documents afterwards, those changes will be lost.",
+    "RestoreYes": "Restore",
+    "RestoreDone": "Backup restored: {n} documents.",
+    "RestoreProblems": "{missing} documents were not found and {failed} failed."
   }
 }

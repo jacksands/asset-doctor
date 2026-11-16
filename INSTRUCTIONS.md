@@ -108,6 +108,8 @@ Copies go into `images/`, `videos/`, `sounds/` and `other/` inside the destinati
 
 ### What is not copied
 
+The result lists **Needs your attention** first (missing files, failed copies), already open. **Skipped on purpose** comes next, closed (Foundry core files, external links, hidden items and so on), so the important items do not get lost among thousands of core files.
+
 Everything that is skipped is listed, grouped by reason, and **Not copied** comes first. The same list is in the CSV report (**Export report**), which also has a **used_in** column telling where each file is used (playlist, token, scene...). The result also shows how many copied files are used in each place, so you can check that, for example, the music of your playlists was included.
 
 - Files that are missing (there is nothing to copy).
@@ -142,7 +144,8 @@ For a full safety copy of the world (with all the old paths), use Foundry's own 
 - Backups are saved in your Foundry Data folder: `Data/asset-doctor/<world name>/backup-<date>.json`.
 - The backup checkbox is remembered. Uncheck it if you do not want backups.
 - If saving into Data fails, the backup is downloaded by your browser instead. If neither works, nothing is changed.
-- **Undo last replacement** (top bar) puts the old values back. It is available until you reload Foundry. After that, the backup file keeps the old values safe.
+- **Undo last replacement** (top bar) puts the old values back. It is available until you reload Foundry.
+- **Restore backup...** (top bar) works at any time, even after reloading Foundry. Pick a backup file from `Data/asset-doctor/<world name>/`. It shows how many documents it will restore and the date of the backup, and asks you to confirm. It puts back the old values of the fields that were changed. If you changed those same fields afterwards, those changes are lost. A backup can only be restored in the world it was made in.
 
 ## Hide for now
 
@@ -168,7 +171,7 @@ To bring it back, open the **Hidden** tab and click **Show again** (or **Show al
 - **The window looks old after an update.** Reload Foundry with Ctrl+F5 (or clear the browser cache).
 - **The scan is slow.** Turn off the compendium options. Compendiums are the slow part.
 - **Copy says "size mismatch", or some paths were not updated.** Another module changed the file during upload. Media Optimizer, for example, converts PNG and JPG to WebP, and it can rename files. Assets Doctor warns you when such modules are active. For exact copies, turn them off and reload. To keep the converted files instead, tick **Accept files that another module changed during upload**: the world paths then point to the converted files.
-- **Something looks wrong after a replacement.** Click **Undo last replacement**, or use the backup file in `Data/asset-doctor/<world name>/`.
+- **Something looks wrong after a replacement.** Click **Undo last replacement**, or use **Restore backup...** and pick the backup file in `Data/asset-doctor/<world name>/`.
 
 ## Links
 

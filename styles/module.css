@@ -386,3 +386,6 @@
 #ald-copy .cp-backup-tip p { margin: 0; font-size: 12.5px; line-height: 1.45; color: var(--ald-text); }
 #ald-copy .cp-backup-tip.urgent { border-color: var(--ald-warn); background: rgba(230, 180, 80, 0.16); box-shadow: 0 0 0 3px rgba(230, 180, 80, 0.18); }
 #ald-copy .cp-backup-tip.urgent > i { color: var(--ald-warn); }
+
+#ald-copy .cp-sub { margin-top: 10px; }
+#ald-copy .cp-attn { color: var(--ald-warn); }

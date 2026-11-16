@@ -27,14 +27,14 @@ Moving or renaming a folder in your asset library breaks every link that pointed
 - **Replace one file everywhere**: one click replaces a broken path in every place that uses it, with a Browse button.
 - **Replace in bulk**: swap a folder, swap part of a path, or change only the extension, on exactly what the list shows. Browse buttons help you pick folders.
 - Preview of old and new paths, and a check that the new file exists before anything changes.
-- A backup before every change, and an **Undo** button.
+- A backup before every change, an **Undo** button, and **Restore backup...** to bring the old values back from a backup file, even after reloading Foundry.
 - **Hide for now**: take an item out of the list to deal with it later.
 
 **Copy assets to a folder**
 - Copies every file your world uses into a folder you choose (for example `modules/my-module/assets`), sorted into `images/`, `videos/`, `sounds/` and `other/`.
 - Keeps the original folders (or puts files straight into the type folders), with an analysis step that shows how many files and how much space before anything is copied.
 - Optionally updates the world's paths to the copies.
-- Lists what was copied, and above all what was **not** copied and why. The CSV report also says where each file is used (playlist, token, scene...).
+- Lists what was copied, and above all what was **not** copied and why. What needs your attention (missing files, failures) comes first, and what was skipped on purpose (core files, external links, hidden items) comes after. The CSV report also says where each file is used (playlist, token, scene...).
 
 ## Install
 
@@ -69,7 +69,7 @@ Nothing leaves your server. Assets Doctor makes no requests to outside sites.
 
 - Nothing changes until you confirm. Bulk replace shows a preview first.
 - By default only paths whose new file exists are changed.
-- The module backup (`Data/asset-doctor/<world name>/backup-<date>.json`) keeps the old values of what it changes and powers **Undo**. It is **not** a copy of the whole world. For that, use Foundry's own backup from Setup.
+- The module backup (`Data/asset-doctor/<world name>/backup-<date>.json`) keeps the old values of what it changes. It powers **Undo** and **Restore backup...**. It is **not** a copy of the whole world. For that, use Foundry's own backup from Setup.
 - The module never deletes or moves files. Foundry does not allow modules to do that.
 
 ## Compatibility notes
@@ -92,7 +92,7 @@ console.log(api.version);
 - Every file passes through your browser during a copy, so big videos are slow and use memory.
 - Paths in module settings are not replaced, and neither are external web links, Foundry core files and bare file names with no folder.
 - Wildcards in a copy are only updated when the original folders are kept and the new pattern still matches the copied files.
-- Restoring from a backup file is not built in yet. Undo works until you reload Foundry.
+- Undo works until you reload Foundry. After that, use **Restore backup...** with the backup file. It restores the old values of the fields that were changed, so later changes to those same fields are lost.
 
 ## Project layout
 
@@ -113,6 +113,7 @@ scripts/
   copy.mjs             copy engine, report
   copy-app.mjs         copy window
   backup.mjs           module backup into Data
+  restore.mjs          reads a backup file for Restore backup
   module-picker.mjs    module browser
   app.mjs              main window
 ```

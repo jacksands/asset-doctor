@@ -21,6 +21,8 @@ const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => (
   { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
 ));
 const LIST_CAP = 200;
+/** Motivos que pedem a atencao do usuario (o resto foi pulado de proposito). */
+const ATTENTION = new Set(["missing", "failed", "cancelled", "wildempty"]);
 
 export const defaultCopyPrefs = () => ({
   dest: "", keepFolders: true, strip: "",
@@ -346,13 +348,24 @@ export class CopyApp extends ApplicationV2 {
       ? `<div class="rp-hint">${esc(t("ALD.Copy.PlanNote"))}</div>`
       : `<div class="rp-empty">${esc(t("ALD.Copy.NothingToCopy"))}</div>`;
     if (skipped.length) {
-      html += `<div class="rp-label cp-gap">${esc(fmt("ALD.Copy.WillNotCopy", { n: skipped.length }))}</div>${this._reasonsHTML(skipped.map((s) => ({ reason: s.reason, src: s.path, uses: s.uses })))}`;
+      html += `<div class="rp-label cp-gap">${esc(fmt("ALD.Copy.WillNotCopy", { n: skipped.length }))}</div>${this._splitHTML(skipped.map((s) => ({ reason: s.reason, src: s.path, uses: s.uses })))}`;
     }
     return html;
   }
 
+  /** Primeiro o que pede atencao (aberto), depois o que foi pulado de proposito (fechado). */
+  _splitHTML(rows) {
+    const att = rows.filter((r) => ATTENTION.has(r.reason));
+    const rest = rows.filter((r) => !ATTENTION.has(r.reason));
+    let html = att.length
+      ? `<div class="rp-label cp-sub cp-attn">${esc(fmt("ALD.Copy.NeedsAttention", { n: att.length }))}</div>${this._reasonsHTML(att, true)}`
+      : `<div class="rp-label cp-sub">${esc(t("ALD.Copy.NothingNeedsAttention"))}</div>`;
+    if (rest.length) html += `<div class="rp-label cp-sub">${esc(fmt("ALD.Copy.SkippedOnPurpose", { n: rest.length }))}</div>${this._reasonsHTML(rest, false)}`;
+    return html;
+  }
+
   /** Lista agrupada por motivo (usada no plano e no resultado). */
-  _reasonsHTML(rows) {
+  _reasonsHTML(rows, open = false) {
     const groups = new Map();
     for (const r of rows) {
       if (!groups.has(r.reason)) groups.set(r.reason, []);
@@ -362,7 +375,7 @@ export class CopyApp extends ApplicationV2 {
       const lis = list.slice(0, LIST_CAP).map((r) =>
         `<li><span class="cp-path">${esc(r.src)}</span>${r.uses !== "" && r.uses != null ? `<span class="cp-uses">${esc(fmt("ALD.Rep.UsedIn", { n: r.uses }))}</span>` : ""}${r.error ? `<span class="cp-err">${esc(r.error)}</span>` : ""}</li>`).join("");
       const more = list.length > LIST_CAP ? `<li class="cp-more">${esc(fmt("ALD.Copy.MoreInCsv", { n: list.length - LIST_CAP }))}</li>` : "";
-      return `<details class="cp-reason"><summary><b>${esc(t(`ALD.Copy.Reason.${reason}`))}</b> <em>${list.length}</em></summary><ul class="cp-list">${lis}${more}</ul></details>`;
+      return `<details class="cp-reason" ${open ? "open" : ""}><summary><b>${esc(t(`ALD.Copy.Reason.${reason}`))}</b> <em>${list.length}</em></summary><ul class="cp-list">${lis}${more}</ul></details>`;
     }).join("");
   }
 
@@ -484,7 +497,7 @@ export class CopyApp extends ApplicationV2 {
     html += `</div>`;
 
     html += `<div class="rp-label cp-gap">${esc(fmt("ALD.Copy.NotCopiedTitle", { n: notCopied.length }))}</div>`;
-    html += notCopied.length ? this._reasonsHTML(notCopied) : `<div class="rp-empty">${esc(t("ALD.Copy.AllCopied"))}</div>`;
+    html += notCopied.length ? this._splitHTML(notCopied) : `<div class="rp-empty">${esc(t("ALD.Copy.AllCopied"))}</div>`;
 
     const notUpdated = rows.filter((r) => r.status === "path not updated");
     if (notUpdated.length) {

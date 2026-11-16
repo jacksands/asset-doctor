@@ -5,6 +5,8 @@ import { pickModule, modulesWithPacks } from "./module-picker.mjs";
 import { openReplace } from "./replace-app.mjs";
 import { openCopy } from "./copy-app.mjs";
 import { isReplaceable, undoBatch } from "./replace.mjs";
+import { loadBackup } from "./restore.mjs";
+import { backupDir } from "./backup.mjs";
 
 const { ApplicationV2, DialogV2 } = foundry.applications.api;
 
@@ -129,6 +131,7 @@ function shellHTML(scopeOpen) {
       <button type="button" class="ald-btn" data-action="cancel" id="ald-btn-cancel" hidden><i class="fa-solid fa-xmark"></i> ${esc(t("ALD.Cancel"))}</button>
       <button type="button" class="ald-btn" data-action="bulk" id="ald-btn-bulk" disabled title="${esc(t("ALD.BulkTip"))}"><i class="fa-solid fa-right-left"></i> ${esc(t("ALD.Bulk"))}</button>
       <button type="button" class="ald-btn" data-action="copy-assets" id="ald-btn-copy" disabled title="${esc(t("ALD.CopyAssetsTip"))}"><i class="fa-solid fa-box-archive"></i> ${esc(t("ALD.CopyAssets"))}</button>
+      <button type="button" class="ald-btn" data-action="restore-backup" id="ald-btn-restore" title="${esc(t("ALD.RestoreBackupTip"))}"><i class="fa-solid fa-clock-rotate-left"></i> ${esc(t("ALD.RestoreBackup"))}</button>
       <button type="button" class="ald-btn" data-action="undo-last" id="ald-btn-undo" hidden><i class="fa-solid fa-rotate-left"></i> ${esc(t("ALD.UndoLast"))}</button>
       <button type="button" class="ald-btn" data-action="export" id="ald-btn-export" disabled><i class="fa-solid fa-file-csv"></i> ${esc(t("ALD.Export"))}</button>
       <button type="button" class="ald-btn" data-action="maximize" id="ald-btn-max"><i class="fa-solid fa-expand"></i> <span>${esc(t("ALD.Maximize"))}</span></button>
@@ -280,6 +283,7 @@ export class AssetLinkDoctorApp extends ApplicationV2 {
       case "maximize": return this._toggleMax();
       case "bulk": return this._openBulk();
       case "copy-assets": return this._openCopy();
+      case "restore-backup": return this._restoreBackup();
       case "undo-last": return void this._undoLast();
       case "toggle-filters":
         S.filtersOpen = !S.filtersOpen;
@@ -442,6 +446,7 @@ export class AssetLinkDoctorApp extends ApplicationV2 {
     r.querySelector("#ald-btn-export").disabled = S.scanning || !S.result;
     r.querySelector("#ald-btn-bulk").disabled = S.scanning || !S.result;
     r.querySelector("#ald-btn-copy").disabled = S.scanning || !S.result;
+    r.querySelector("#ald-btn-restore").disabled = S.scanning;
     r.querySelector("#ald-btn-undo").hidden = !S.lastBatch;
     r.querySelector("#ald-btn-undo").disabled = S.scanning;
     for (const id of ["world", "comp", "module"]) r.querySelector(`#ald-opt-${id}`).disabled = S.scanning;
@@ -624,6 +629,44 @@ export class AssetLinkDoctorApp extends ApplicationV2 {
     const S = _getState();
     if (!S.result) return;
     openReplace({ mode: "bulk", groups: this._matches(), onDone: () => this._startScan() });
+  }
+
+  /** Escolhe um arquivo de backup e restaura os valores antigos dos documentos. */
+  _restoreBackup() {
+    const FP = foundry.applications.apps.FilePicker.implementation;
+    new FP({ type: "any", current: backupDir(), callback: (path) => this._restoreFrom(path) }).render({ force: true });
+  }
+
+  async _restoreFrom(path) {
+    let backup;
+    try { backup = await loadBackup(path); }
+    catch { ui.notifications.error(t("ALD.RestoreBadFile")); return; }
+    if (backup.world && backup.world !== game.world.id) {
+      ui.notifications.error(fmt("ALD.RestoreOtherWorld", { world: backup.world }));
+      return;
+    }
+    if (!backup.entries.length) { ui.notifications.warn(t("ALD.RestoreNothing")); return; }
+
+    const when = backup.at && !Number.isNaN(Date.parse(backup.at)) ? new Date(backup.at).toLocaleString() : "?";
+    const answer = await DialogV2.wait({
+      window: { title: t("ALD.RestoreBackup") },
+      content: `<p>${esc(fmt("ALD.RestoreConfirm", { n: backup.entries.length, date: when }))}</p>`,
+      buttons: [
+        { action: "yes", label: t("ALD.RestoreYes"), default: true },
+        { action: "no", label: t("ALD.Cancel") }
+      ],
+      rejectClose: false
+    }).catch(() => null);
+    if (answer !== "yes") return;
+
+    const res = await undoBatch({ entries: backup.entries });
+    ui.notifications.info(fmt("ALD.RestoreDone", { n: res.restored }));
+    if (res.missing || res.failures.length) {
+      ui.notifications.warn(fmt("ALD.RestoreProblems", { missing: res.missing, failed: res.failures.length }));
+    }
+    _getState().lastBatch = null;
+    this._syncScanUI();
+    this._startScan();
   }
 
   _openCopy() {

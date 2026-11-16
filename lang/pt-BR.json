@@ -114,7 +114,10 @@
       "OptimizerWarn": "Módulos ativos que mudam arquivos no envio: {list}. Eles podem converter imagens (por exemplo PNG e JPG para WebP) ou renomear arquivos, e a cópia deixa de ser igual ao original. Para cópias exatas, desligue esses módulos e recarregue o Foundry. Ou marque \"Aceitar arquivos que outro módulo alterou no envio\" abaixo: os caminhos do mundo passam a apontar para os arquivos convertidos.",
       "BackupTipTitle": "Antes de mudar qualquer caminho: faça o backup de mundo do próprio Foundry",
       "BackupTipText": "Feche este mundo, abra o Setup, clique com o botão direito no mundo e escolha Backup. Ele funciona como uma segunda rede de segurança, além do backup deste módulo (que guarda só os valores antigos do que ele muda). É uma precaução extra e leva poucos segundos.",
-      "UsedBy": "Arquivos copiados por onde são usados: {list}."
+      "UsedBy": "Arquivos copiados por onde são usados: {list}.",
+      "NeedsAttention": "Pede a sua atenção ({n})",
+      "SkippedOnPurpose": "Pulados de propósito ({n})",
+      "NothingNeedsAttention": "Nada pede a sua atenção."
     },
     "Copied": "Caminho copiado.",
     "CantOpen": "Não foi possível abrir este documento.",
@@ -341,6 +344,15 @@
     "EmptyHidden": "Nada oculto. Use o botão Ocultar de uma linha para tirá-la da lista por enquanto.",
     "CopyAssets": "Copiar assets",
     "CopyAssetsTip": "Copia os arquivos usados pelo mundo para uma pasta que você escolhe (por exemplo, a de um módulo)",
-    "CopyPath": "Copiar caminho"
+    "CopyPath": "Copiar caminho",
+    "RestoreBackup": "Restaurar backup...",
+    "RestoreBackupTip": "Restaura os valores antigos a partir de um arquivo de backup salvo em Data/asset-doctor/<mundo>/",
+    "RestoreBadFile": "Este arquivo não é um backup do Assets Doctor.",
+    "RestoreOtherWorld": "Este backup é do mundo \"{world}\" e não pode ser restaurado neste mundo.",
+    "RestoreNothing": "O backup não tem nada para restaurar.",
+    "RestoreConfirm": "Restaurar {n} documentos com os valores do backup feito em {date}? Se você mudou depois os mesmos campos desses documentos, essas mudanças serão perdidas.",
+    "RestoreYes": "Restaurar",
+    "RestoreDone": "Backup restaurado: {n} documentos.",
+    "RestoreProblems": "{missing} documentos não foram encontrados e {failed} falharam."
   }
 }
